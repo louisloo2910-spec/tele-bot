@@ -18,7 +18,7 @@ function saveData() {
   fs.writeFileSync("data.json", JSON.stringify(data, null, 2));
 }
 
-// ===== BUILD TEXT =====
+// ===== BUILD MESSAGE =====
 function buildText() {
   if (data.list.length === 0) {
     return "💕 Danh sách cầu nguyện:\n\n(Chưa có ai)";
@@ -35,7 +35,7 @@ function buildText() {
   return text;
 }
 
-// ===== BUTTON =====
+// ===== BUTTONS =====
 function buildButtons() {
   return Markup.inlineKeyboard(
     data.list.map((item, index) => [
@@ -45,9 +45,11 @@ function buildButtons() {
   );
 }
 
-// ===== UPDATE MESSAGE =====
+// ===== UPDATE MESSAGE (1 message duy nhất) =====
 async function updateMessage(ctx) {
   try {
+    if (!data.chat_id || !data.message_id) return;
+
     await ctx.telegram.editMessageText(
       data.chat_id,
       data.message_id,
@@ -62,7 +64,7 @@ async function updateMessage(ctx) {
   }
 }
 
-// ===== SET =====
+// ===== START BOARD =====
 bot.command("set_prayer", async (ctx) => {
   const msg = await ctx.reply(buildText(), buildButtons());
 
@@ -73,33 +75,42 @@ bot.command("set_prayer", async (ctx) => {
   saveData();
 });
 
-// ===== ADD / UPDATE =====
+// ===== PARSE INPUT =====
+// Format:
+// Dòng 1: Tên
+// Dòng 2: Nội dung (1 dòng)
+// Dòng 3: Target
 bot.on("text", async (ctx) => {
   const text = ctx.message.text;
   if (text.startsWith("/")) return;
 
-const parts = text.split("\n").map((p) => p.trim()).filter(Boolean);
+  const raw = text.replace(/\r/g, "").trim();
 
-if (parts.length < 3) {
-  return ctx.reply(
-    "❌ Nhập sai cú pháp\nVD:\nTên\nNội dung\nTarget"
-  );
-}
+  const lines = raw
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0);
 
-const name = parts[0];
-const content = parts[1];
-const targetStr = parts[2];
-  const target = parseInt(targetStr);
+  if (lines.length < 3) {
+    return ctx.reply(
+      "❌ Sai cú pháp\n\nVD:\nTên\nNội dung\nTarget"
+    );
+  }
+
+  const name = lines[0];
+  const content = lines.slice(1, -1).join(" ");
+  const target = parseInt(lines[lines.length - 1]);
 
   if (isNaN(target)) {
     return ctx.reply("❌ Target phải là số");
   }
 
+  // ===== CHECK EXIST =====
   const existing = data.list.find(
     (i) => i.name.toLowerCase() === name.toLowerCase()
   );
 
-  // ===== CASE: CHƯA CÓ =====
+  // NEW
   if (!existing) {
     data.list.push({
       name,
@@ -113,15 +124,12 @@ const targetStr = parts[2];
     return;
   }
 
-  // ===== CASE: TRÙNG HOÀN TOÀN =====
-  if (
-    existing.content === content &&
-    existing.target === target
-  ) {
-    return ctx.reply("❌ Không có gì thay đổi (bị trùng)");
+  // SAME
+  if (existing.content === content && existing.target === target) {
+    return ctx.reply("❌ Không có gì thay đổi (trùng hoàn toàn)");
   }
 
-  // ===== CASE: UPDATE =====
+  // UPDATE
   existing.content = content;
   existing.target = target;
 
@@ -136,9 +144,8 @@ bot.action(/plus_(\d+)/, async (ctx) => {
   if (data.list[index]) {
     data.list[index].count += 1;
 
-    // đạt target
     if (data.list[index].count >= data.list[index].target) {
-      ctx.reply(`🎉 ${data.list[index].name} đã đủ target!`);
+      ctx.reply(`🎉 ${data.list[index].name} đã đạt mục tiêu!`);
     }
 
     saveData();
@@ -163,7 +170,7 @@ bot.action(/minus_(\d+)/, async (ctx) => {
 
 // ===== REMOVE =====
 bot.command("remove", (ctx) => {
-  const name = ctx.message.text.replace("/remove ", "").trim();
+  const name = ctx.message.text.replace("/remove", "").trim();
 
   const index = data.list.findIndex(
     (i) => i.name.toLowerCase() === name.toLowerCase()
@@ -185,6 +192,6 @@ bot.command("reset", (ctx) => {
   updateMessage(ctx);
 });
 
-// ===== START =====
+// ===== START BOT =====
 bot.launch();
 console.log("🤖 Bot đang chạy...");

@@ -2,9 +2,7 @@ const { Telegraf, Markup } = require("telegraf");
 const fs = require("fs");
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
-bot.on("message", (ctx) => {
-  console.log("THREAD ID:", ctx.message.message_thread_id);
-});
+const PRAYER_THREAD_ID = 532;
 // ===== DATA =====
 let data = {
   list: [],
@@ -93,6 +91,7 @@ bot.command("set_prayer", async (ctx) => {
 // Dòng 2: Nội dung (1 dòng)
 // Dòng 3: Target
 bot.on("text", async (ctx) => {
+  if (ctx.message.message_thread_id !== PRAYER_THREAD_ID) return;
   const text = ctx.message.text;
   if (text.startsWith("/")) return;
 

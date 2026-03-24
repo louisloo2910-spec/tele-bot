@@ -31,10 +31,10 @@ function saveData() {
 // ===== BUILD MESSAGE =====
 function buildText() {
   if (!data || !Array.isArray(data.list) || data.list.length === 0) {
-    return "📿 Danh sách cầu nguyện:\n\n(Chưa có ai)";
+    return "💕 Danh sách cầu nguyện:\n\n(Chưa có ai)";
   }
 
-  let text = "📿 Danh sách cầu nguyện:\n\n";
+  let text = "💕 Danh sách cầu nguyện:\n\n";
 
   data.list.forEach((item, index) => {
     text += `${index + 1}. ${item.name}\n`;

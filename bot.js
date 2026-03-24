@@ -2,7 +2,9 @@ const { Telegraf, Markup } = require("telegraf");
 const fs = require("fs");
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
-
+bot.on("message", (ctx) => {
+  console.log("THREAD ID:", ctx.message.message_thread_id);
+});
 // ===== DATA =====
 let data = {
   list: [],

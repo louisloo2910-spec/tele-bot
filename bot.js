@@ -67,13 +67,13 @@ async function updateMessage(ctx) {
       buildText(),
       {
         reply_markup: buildButtons().reply_markup,
+        message_thread_id: PRAYER_THREAD_ID
       }
     );
   } catch (err) {
-    console.log("Edit lỗi:", err.message);
+    console.log("Edit lỗi FULL:", err);
   }
 }
-
 // ===== START BOARD =====
 bot.command("set_prayer", async (ctx) => {
   const msg = await ctx.reply(buildText(), buildButtons());

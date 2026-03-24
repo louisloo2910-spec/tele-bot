@@ -78,13 +78,17 @@ bot.on("text", async (ctx) => {
   const text = ctx.message.text;
   if (text.startsWith("/")) return;
 
-  const parts = text.split("|").map((p) => p.trim());
+const parts = text.split("\n").map((p) => p.trim()).filter(Boolean);
 
-  if (parts.length < 3) {
-    return ctx.reply("❌ Nhập sai cú pháp\nVD: Tên | nội dung | target");
-  }
+if (parts.length < 3) {
+  return ctx.reply(
+    "❌ Nhập sai cú pháp\nVD:\nTên\nNội dung\nTarget"
+  );
+}
 
-  const [name, content, targetStr] = parts;
+const name = parts[0];
+const content = parts[1];
+const targetStr = parts[2];
   const target = parseInt(targetStr);
 
   if (isNaN(target)) {

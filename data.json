@@ -1,0 +1,16 @@
+{
+  "prayers": [
+    {
+      "id": 1774324088091,
+      "name": "Thảo Ly 2006",
+      "content": "Xin CM ban cho Thảo Ly được mở tai mắt lh và hiểu ra lẽ thật của CM mà được kịp bt trước LVQ ạ",
+      "current": 4,
+      "target": 200,
+      "thread_id": 532
+    }
+  ],
+  "messageIdStore": {
+    "532": 656
+  },
+  "prayerTopicId": 532
+}

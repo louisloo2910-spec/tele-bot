@@ -206,3 +206,9 @@ bot.command("reset", (ctx) => {
 // ===== START BOT =====
 bot.launch();
 console.log("🤖 Bot đang chạy...");
+const ENABLE_BOT = false;
+
+if (!ENABLE_BOT) {
+  console.log("🛑 Bot đang tắt");
+  process.exit(0);
+}
